@@ -127,61 +127,106 @@ var newPlayer = new Player([toPixelAxes.x(50), toPixelAxes.y(50)], 10);
 newPlayer.draw('player');
 var player = d3.select('.player');
 
+
+
 //---RUN ONCE GAME IS LOADED---
 $(document).ready(function () {
 
   //WASD controls
-  var keys = [];
+  var keyPushStates = {};
   var keyCode;
 
-  d3.select('body').on('keydown', function () {
-    keyCode = d3.event.keyCode;
-    console.log('keyCode: ', keyCode)
-    keys[keyCode] = (d3.event.type === 'keydown');
-    console.log('keys: ', keys)
-  });
-
-  d3.select('body').on('keyup', function () {
-    keyCode = d3.event.keyCode;
-    console.log('keyCode: ', keyCode)
-    if (d3.event.type === 'keyup') {
-      keys[keyCode] = false;
-    }
-    console.log('keys: ', keys)
-  });
-
-  //handle movement
-  var handler = function (key) {
-    if (key === 'a') {
-      newPlayer.move(-2, 0);
-    } else if (key === 'w') {
-      newPlayer.move(0, -2);
-    } else if (key === 'd') {
-      newPlayer.move(2, 0);
-    } else if (key === 's') {
-      newPlayer.move(0, 2);
+  var logKey = function (event) {
+    keyCode = event.keyCode;
+    if (event.type === 'keydown') {
+      console.log(keyPushStates)
+      keyPushStates[keyCode] = true;
+    } else if (event.type === 'keyup') {
+      keyPushStates[keyCode] = false;
     }
   }
 
-  newPlayer.loc[0] = Math.min(gameOptions.width, Math.max(0, newPlayer.momentum[0] + newPlayer.loc[0]));
-  newPlayer.loc[1] = Math.min(gameOptions.height, Math.max(0, newPlayer.momentum[1] + newPlayer.loc[1]));
-  player
-    .datum(newPlayer.loc)
-    .attr('transform', function (d) {
-      return 'translate(' + d + ')';
-    });
-  newPlayer.momentum[0] *= gameOptions.friction;
-  newPlayer.momentum[1] *= gameOptions.friction;
+  d3.select('body').on('keydown', function () {
+    logKey(d3.event);
+  });
+
+  d3.select('body').on('keyup', function () {
+    logKey(d3.event);
+  });
+
+  //handle movement
+  var keysHandler = function () {
+
+    //a && w
+    if (keyPushStates[65] && keyPushStates[87]) {
+      newPlayer.loc[0]--;
+      newPlayer.loc[1]--;
+
+      //a && s
+    } else if (keyPushStates[65] && keyPushStates[83]) {
+      newPlayer.loc[0]--;
+      newPlayer.loc[1]++;
+
+      //w && d
+    } else if (keyPushStates[87] && keyPushStates[68]) {
+      newPlayer.loc[0]++;
+      newPlayer.loc[1]--;
+
+      //d && s
+    } else if (keyPushStates[68] && keyPushStates[83]) {
+      newPlayer.loc[0]++;
+      newPlayer.loc[1]++;
+
+      //a
+    } else if (keyPushStates[65]) {
+      // console.log('pressed a')
+      console.log('player: ', player);
+      // newPlayer.move(-2, 0);
+      newPlayer.loc[0]--;
+
+      //w
+    } else if (keyPushStates[87]) {
+      // console.log('pressed w')
+      // newPlayer.move(0, -2);
+      newPlayer.loc[1]--;
+
+      //d
+    } else if (keyPushStates[68]) {
+      // console.log('pressed d')
+      // newPlayer.move(2, 0);
+      newPlayer.loc[0]++;
+
+      //s
+    } else if (keyPushStates[83]) {
+      // console.log('pressed s')
+      // newPlayer.move(0, 2);
+      newPlayer.loc[1]++;
+    }
+  }
+
+
+  // player
+  //   .datum(newPlayer.loc)
+  //   .attr('transform', function (d) {
+  //     return 'translate(' + d[0] + 'px ' + ',' + d[1] + ' px' + ')';
+  //   });
+
 
   //---GAME TIMER---
   d3.timer(function () {
-    for (var i = keys.length; i < 0; i--) {
-      for (key in keyObj) {
-        if (keys[i][key] === true) {
-          handler(keys[i][key]);
-        }
-      }
-    }
+    keysHandler();
+    // newPlayer.loc[0] = Math.min(gameOptions.width, Math.max(0, newPlayer.momentum[0] + newPlayer.loc[0]));
+    // newPlayer.loc[1] = Math.min(gameOptions.height, Math.max(0, newPlayer.momentum[1] + newPlayer.loc[1]));
+    // newPlayer.momentum[0] *= gameOptions.friction;
+    // newPlayer.momentum[1] *= gameOptions.friction;
+    //create data binding between player selection and player loc
+    player.datum(newPlayer.loc)
+      .attr('cx', function (d) {
+        return pixelize(d[0]);
+      })
+      .attr('cy', function (d) {
+        return pixelize(d[1]);
+      })
   });
 
 });
