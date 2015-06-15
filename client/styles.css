@@ -1,0 +1,17 @@
+body {
+  position: relative;
+  background-color: lightgray;
+}
+
+.board {
+  background-color: white;
+  cursor: none;
+}
+
+.crosshairs {
+  fill: red;
+}
+
+.player {
+  fill: green;
+}
