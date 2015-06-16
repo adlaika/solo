@@ -56,7 +56,6 @@ var GameElement = function (loc, size, shape) {
   this.size = size;
   this.shape = shape;
   this.speed = 1;
-  // this.momentum = [0, 0];
 };
 
 //all game elements have a function that creates them on board
@@ -66,17 +65,27 @@ GameElement.prototype.draw = function (htmlClass) {
     .attr('cx', pixelize(this.loc[0]))
     .attr('cy', pixelize(this.loc[1]))
     .attr('r', this.size)
-  // .attr('momentum', [0, 0])
 };
 
 GameElement.prototype.move = function (x, y) {
-  // this.momentum[0] += x;
-  // this.momentum[1] += y;
   this.loc[0] += x * this.speed;
   this.loc[1] += y * this.speed;
 };
 
-GameElement.prototype.shoot = function (targetX, targetY) {}
+GameElement.prototype.shoot = function (targetX, targetY) {
+  var x = this.loc[0];
+  var y = this.loc[1];
+  // new Bullet (crosshairs)
+}
+
+//bullet constructor
+var Bullet = function () {
+  GameElement.apply(this, arguments);
+  this.speed = 20;
+};
+Bullet.prototype = Object.create(GameElement.prototype);
+Bullet.prototype.constructor = Bullet;
+
 
 //player constructor
 var Player = function () {
@@ -138,13 +147,15 @@ crosshairs.draw('crosshairs');
 //mouse movement controls crosshairs
 board.on('mousemove', function () {
   var loc = d3.mouse(this);
-  mouse = {
-    x: loc[0],
-    y: loc[1]
-  };
+  // mouse = {
+  //   x: loc[0],
+  //   y: loc[1]
+  // };
+  crosshairs.loc[0] = loc[0];
+  crosshairs.loc[1] = loc[1];
   d3.select('.crosshairs')
-    .attr('cx', pixelize(mouse.x))
-    .attr('cy', pixelize(mouse.y))
+    .attr('cx', pixelize(crosshairs.loc[0]))
+    .attr('cy', pixelize(crosshairs.loc[1]))
 });
 
 //instantiate player and append to board, save as selection
@@ -192,51 +203,35 @@ $(document).ready(function () {
 
     //a && w
     if (keyPushStates[65] && keyPushStates[87]) {
-      // newPlayer.loc[0]--;
-      // newPlayer.loc[1]--;
       newPlayer.move(-1, -1);
 
       //a && s
     } else if (keyPushStates[65] && keyPushStates[83]) {
-      // newPlayer.loc[0]--;
-      // newPlayer.loc[1]++;
       newPlayer.move(-1, 1);
 
       //w && d
     } else if (keyPushStates[87] && keyPushStates[68]) {
-      // newPlayer.loc[0]++;
-      // newPlayer.loc[1]--;
       newPlayer.move(1, -1);
 
       //d && s
     } else if (keyPushStates[68] && keyPushStates[83]) {
-      // newPlayer.loc[0]++;
-      // newPlayer.loc[1]++;
       newPlayer.move(1, 1);
 
       //a
     } else if (keyPushStates[65]) {
-      // console.log('pressed a')
       newPlayer.move(-2, 0);
-      // newPlayer.loc[0]--;
 
       //w
     } else if (keyPushStates[87]) {
-      // console.log('pressed w')
       newPlayer.move(0, -2);
-      // newPlayer.loc[1]--;
 
       //d
     } else if (keyPushStates[68]) {
-      // console.log('pressed d')
       newPlayer.move(2, 0);
-      // newPlayer.loc[0]++;
 
       //s
     } else if (keyPushStates[83]) {
-      // console.log('pressed s')
       newPlayer.move(0, 2);
-      // newPlayer.loc[1]++;
     }
   }
 
@@ -264,38 +259,11 @@ $(document).ready(function () {
     })
   }
 
-  // player
-  //   .datum(newPlayer.loc)
-  //   .attr('transform', function (d) {
-  //     return 'translate(' + d[0] + 'px ' + ',' + d[1] + ' px' + ')';
-  //   });
-
   //---GAME TIMER---
   d3.timer(function () {
     keysHandler();
     updateLoc(player, newPlayer.loc);
     moveEnemies();
     updateEnemyLoc();
-
-    // enemies.each(function (_, i) {
-    //   // updateLoc(d3.select(this), newEnemies[i].loc);
-    //   d3.select(this).datum(newEnemies[i].loc)
-    //     .attr('cx', function (d) {
-    //       return pixelize(d[0] + 1);
-    //     })
-    //     .attr('cy', function (d) {
-    //       return pixelize(d[1] + 1);
-    //     })
-    // });
-
-    // for (var i = 0; i < enemies.length; i++) {
-    //   updateLoc(enemies[i], newEnemies[i].loc);
-    // }
-
-    // newPlayer.loc[0] = Math.min(gameOptions.width, Math.max(0, newPlayer.momentum[0] + newPlayer.loc[0]));
-    // newPlayer.loc[1] = Math.min(gameOptions.height, Math.max(0, newPlayer.momentum[1] + newPlayer.loc[1]));
-    // newPlayer.momentum[0] *= gameOptions.friction;
-    // newPlayer.momentum[1] *= gameOptions.friction;
-
   });
 });
