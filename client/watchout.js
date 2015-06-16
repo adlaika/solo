@@ -1,21 +1,20 @@
 //---SETTINGS---
 var gameOptions = {
-  width: window.innerWidth - 100,
+  width: window.innerWidth,
   height: window.innerHeight - 100,
-  padding: 40,
-  nEnemies: 15,
+  nEnemies: 30,
   friction: 0.9
 };
 
 var gameStats = {
-  score: 0,
+  timeLived: 0,
   highScore: 0,
   kills: 0,
-  health: 100
+  health: 100,
 };
 
 var updateScore = function () {
-  d3.select('.scoreboard .current span').text(gameStats.score);
+  d3.select('.scoreboard .current span').text(gameStats.timeLived);
   d3.select('.scoreboard .highscore span').text(gameStats.highScore);
   d3.select('.scoreboard .kills span').text(gameStats.kills);
 };
@@ -66,16 +65,10 @@ var rand = function (nBot, nTop) {
 
 //return random coords within game board
 var randX = function () {
-  return rand(
-    gameOptions.padding,
-    gameOptions.width - gameOptions.padding
-  );
+  return rand(0, gameOptions.width);
 };
 var randY = function () {
-  return rand(
-    gameOptions.padding,
-    gameOptions.height - gameOptions.padding
-  );
+  return rand(0, gameOptions.height);
 };
 
 
@@ -235,7 +228,8 @@ var player = d3.select('.player');
 //instantiate and append some enemies
 var enemyObjs = [];
 var spawnEnemies = function () {
-  if (enemyObjs.length < 5) {
+  gameOptions.nEnemies = Math.floor(gameStats.timeLived / 10);
+  if (enemyObjs.length < gameOptions.nEnemies) {
     for (var i = 0; i < gameOptions.nEnemies; i++) {
       var x = randX();
       var y = randY();
@@ -249,7 +243,7 @@ spawnEnemies();
 var enemies = d3.selectAll('.enemy');
 
 //instantiate crosshairs and append to board
-var crosshairs = new Crosshairs([toPixelAxes.x(50), toPixelAxes.y(50)], 2);
+var crosshairs = new Crosshairs([toPixelAxes.x(50), toPixelAxes.y(50)], 4);
 var mouse = {
   x: gameOptions.width / 2,
   y: gameOptions.height / 2
@@ -414,7 +408,7 @@ $(function () {
     });
 
     if (collision) {
-      score = 0;
+      timeLived = 0;
       board.style('background-color', 'red');
       gameStats.health--;
       d3.select('.scoreboard .health span').text(gameStats.health);
@@ -468,8 +462,8 @@ $(function () {
   //---SCORE TIMER---
   var scoreTicker = function () {
     if (!paused) {
-      gameStats.score = gameStats.score + 1;
-      gameStats.highScore = Math.max(gameStats.score, gameStats.highScore);
+      gameStats.timeLived = gameStats.timeLived + 1;
+      gameStats.highScore = Math.max(gameStats.timeLived, gameStats.highScore);
       updateScore();
     }
   };
