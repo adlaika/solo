@@ -12,6 +12,14 @@ var gameStats = {
   bestScore: 0
 };
 
+
+
+
+
+
+
+
+
 //---HELPERS---
 var pixelize = function (n) {
   return n + 'px';
@@ -29,6 +37,15 @@ var toCoordAxes = {
   x: d3.scale.linear().domain([0, gameOptions.width]).range([0, 100]).clamp(true),
   y: d3.scale.linear().domain([0, gameOptions.height]).range([0, 100]).clamp(true)
 };
+
+//check if in bounds IN PIXELS
+var inBounds = function (x, y) {
+  var result = false;
+  if (x < gameOptions.height && x > 0 && y < gameOptions.width && y > 0) {
+    result = true;
+  }
+  return result;
+}
 
 //return random number between two constraints
 var rand = function (nBot, nTop) {
@@ -49,11 +66,18 @@ var randY = function () {
   );
 };
 
+
+
+
+
+
+
+
+
 //---GAME ELEMENT CONSTRUCTORS---
-var GameElement = function (loc, size, shape) {
+var GameElement = function (loc, size) {
   this.loc = [loc[0], loc[1]];
   this.size = size;
-  this.shape = shape;
   this.speed = 1;
 };
 
@@ -76,12 +100,14 @@ var bulletObjs = [];
 GameElement.prototype.shoot = function (targetLoc) {
   var x = this.loc[0];
   var y = this.loc[1];
+
   var newBullet = new Bullet(this.loc, 2);
-  // console.log(bulletObjs)
-  this.draw('bullet');
+  newBullet.draw('bullet');
   newBullet.targetLoc = targetLoc;
   bulletObjs.push(newBullet);
-  newBullet.fire(targetLoc);
+  if (newBullet.inBounds) {
+    newBullet.fire(targetLoc);
+  }
 }
 
 //bullet constructor
@@ -92,10 +118,27 @@ var Bullet = function () {
 Bullet.prototype = Object.create(GameElement.prototype);
 Bullet.prototype.constructor = Bullet;
 
-Bullet.prototype.fire = function (targetLoc) {
-  var xDiff = this.loc[0] - targetLoc[0];
-  var yDiff = this.loc[1] - targetLoc[1];
-  this.move(xDiff / this.speed, yDiff / this.speed);
+Bullet.prototype.fire = function () {
+  var xDiff = this.loc[0] - this.targetLoc[0];
+  var yDiff = this.loc[1] - this.targetLoc[1];
+  console.log('thisloc: ', this.loc);
+  console.log('tarloc: ', this.targetLoc);
+  var x, y;
+
+  if (xDiff > 0) {
+    x = 1;
+  } else {
+    x = -1;
+  }
+
+  if (yDiff > 0) {
+    y = 1;
+  } else {
+    y = -1;
+  }
+
+  this.move(x, y);
+  // console.log(this.loc)
 }
 
 //player constructor
@@ -138,7 +181,15 @@ Enemy.prototype.chase = function (target) {
   if (y > targetY) {
     this.move(0, -speed);
   }
-}
+};
+
+
+
+
+
+
+
+
 
 //---SET UP GAME---
 //create board d3 selection
@@ -190,6 +241,14 @@ board.on('mousemove', function () {
 board.on('click', function () {
   newPlayer.shoot(crosshairs.loc);
 });
+
+
+
+
+
+
+
+
 
 //---RUN ONCE GAME IS LOADED---
 $(document).ready(function () {
@@ -278,6 +337,7 @@ $(document).ready(function () {
 
   var moveBullets = function () {
     _.each(bulletObjs, function (bulletObj) {
+      // console.log(bulletObj)
       bulletObj.fire(bulletObj.targetLoc);
     });
   };
@@ -288,6 +348,19 @@ $(document).ready(function () {
     });
   };
 
+  var updateBulletLoc = function () {
+    d3.selectAll('.bullet').each(function (_, i) {
+      updateLoc(d3.select(this), bulletObjs[i].loc);
+    });
+  };
+
+
+
+
+
+
+
+
   //---GAME TIMER---
   d3.timer(function () {
     keysHandler();
@@ -295,6 +368,7 @@ $(document).ready(function () {
     moveEnemies();
     updateEnemyLoc();
     moveBullets();
-    updateMultiLoc(d3.selectAll('.bullets'), bulletObjs);
+    // updateMultiLoc(d3.selectAll('.bullets'), bulletObjs);
+    updateBulletLoc();
   });
 });
