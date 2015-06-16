@@ -19,7 +19,6 @@ var gameStats = {
 
 
 
-
 //---HELPERS---
 var pixelize = function (n) {
   return n + 'px';
@@ -176,17 +175,17 @@ var board = d3.select('.board')
 
 
 //instantiate player and append to board, save as selection
-var newPlayer = new Player([toPixelAxes.x(50), toPixelAxes.y(50)], 10);
-newPlayer.draw('player');
+var playerObj = new Player([toPixelAxes.x(50), toPixelAxes.y(50)], 10);
+playerObj.draw('player');
 var player = d3.select('.player');
 
 //instantiate and append some enemies
-var newEnemies = [];
+var enemyObjs = [];
 for (var i = 0; i < gameOptions.nEnemies; i++) {
   var x = randX();
   var y = randY();
   var newEnemy = new Enemy([x, y], 20);
-  newEnemies.push(newEnemy);
+  enemyObjs.push(newEnemy);
   newEnemy.draw('enemy');
 };
 var enemies = d3.selectAll('.enemy');
@@ -215,7 +214,7 @@ board.on('mousemove', function () {
 
 //click fires
 board.on('click', function () {
-  newPlayer.shoot(crosshairs.loc);
+  playerObj.shoot(crosshairs.loc);
 });
 
 
@@ -255,35 +254,35 @@ $(function () {
 
     //a && w
     if (keyPushStates[65] && keyPushStates[87]) {
-      newPlayer.move(-1, -1);
+      playerObj.move(-1, -1);
 
       //a && s
     } else if (keyPushStates[65] && keyPushStates[83]) {
-      newPlayer.move(-1, 1);
+      playerObj.move(-1, 1);
 
       //w && d
     } else if (keyPushStates[87] && keyPushStates[68]) {
-      newPlayer.move(1, -1);
+      playerObj.move(1, -1);
 
       //d && s
     } else if (keyPushStates[68] && keyPushStates[83]) {
-      newPlayer.move(1, 1);
+      playerObj.move(1, 1);
 
       //a
     } else if (keyPushStates[65]) {
-      newPlayer.move(-2, 0);
+      playerObj.move(-2, 0);
 
       //w
     } else if (keyPushStates[87]) {
-      newPlayer.move(0, -2);
+      playerObj.move(0, -2);
 
       //d
     } else if (keyPushStates[68]) {
-      newPlayer.move(2, 0);
+      playerObj.move(2, 0);
 
       //s
     } else if (keyPushStates[83]) {
-      newPlayer.move(0, 2);
+      playerObj.move(0, 2);
     }
   };
 
@@ -301,13 +300,13 @@ $(function () {
 
   var updateEnemyLoc = function () {
     enemies.each(function (_, i) {
-      updateLoc(d3.select(this), newEnemies[i].loc);
+      updateLoc(d3.select(this), enemyObjs[i].loc);
     });
   };
 
   var moveEnemies = function () {
-    _.each(newEnemies, function (enemy) {
-      enemy.chase(newPlayer);
+    _.each(enemyObjs, function (enemy) {
+      enemy.chase(playerObj);
     });
   };
 
@@ -334,6 +333,36 @@ $(function () {
 
 
 
+  //---COLLISION DETECTION---
+  var prevCollision = false;
+
+  var detectCollisions = function () {
+
+    var collision = false;
+
+    _.each(enemyObjs, function (enemyObj) {
+      // the magic of collision detection
+      var dx = enemyObj.loc[0] - playerObj.loc[0];
+      var dy = enemyObj.loc[1] - playerObj.loc[1];
+      var distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance < enemyObj.size + playerObj.size) {
+        collision = true;
+      }
+    });
+
+    if (collision) {
+      score = 0;
+      board.style('background-color', 'red');
+    } else {
+      board.style('background-color', 'white');
+    }
+    prevCollision = collision;
+  };
+
+  //---HIT DETECTION---
+
+
+
 
 
 
@@ -341,11 +370,13 @@ $(function () {
   //---GAME TIMER---
   d3.timer(function () {
     keysHandler();
-    updateLoc(player, newPlayer.loc);
+    updateLoc(player, playerObj.loc);
     moveEnemies();
     updateEnemyLoc();
     moveBullets();
     // updateMultiLoc(d3.selectAll('.bullets'), bulletObjs);
     updateBulletLoc();
+    detectCollisions();
+    // detectHits();
   });
 });
