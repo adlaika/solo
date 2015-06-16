@@ -159,6 +159,19 @@ Enemy.prototype.chase = function (target) {
   this.move(unitX, unitY);
 };
 
+Enemy.prototype.die = function () {
+  for (var j = 0; j < enemyObjs.length; j++) {
+    if (this === enemyObjs[j]) {
+      enemies
+        .filter(function (d, i) {
+          return i === j;
+        })
+        .remove();
+      enemyObjs.splice(j, 1);
+      return;
+    }
+  }
+};
 
 
 
@@ -299,6 +312,7 @@ $(function () {
   };
 
   var updateEnemyLoc = function () {
+    enemies = d3.selectAll('.enemy');
     enemies.each(function (_, i) {
       updateLoc(d3.select(this), enemyObjs[i].loc);
     });
@@ -360,7 +374,21 @@ $(function () {
   };
 
   //---HIT DETECTION---
-
+  var detectHits = function () {
+    _.each(bulletObjs, function (bulletObj) {
+      for (var i = 0; i < enemyObjs.length; i++) {
+        var enemyObj = enemyObjs[i];
+        // _.each(enemyObjs, function (enemyObj) {
+        // the magic of collision detection
+        var dx = enemyObj.loc[0] - bulletObj.loc[0];
+        var dy = enemyObj.loc[1] - bulletObj.loc[1];
+        var distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < enemyObj.size + bulletObj.size) {
+          enemyObj.die();
+        }
+      };
+    })
+  }
 
 
 
@@ -377,6 +405,6 @@ $(function () {
     // updateMultiLoc(d3.selectAll('.bullets'), bulletObjs);
     updateBulletLoc();
     detectCollisions();
-    // detectHits();
+    detectHits();
   });
 });
