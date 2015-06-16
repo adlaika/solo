@@ -99,14 +99,12 @@ var bulletObjs = [];
 GameElement.prototype.shoot = function (targetLoc) {
   var x = this.loc[0];
   var y = this.loc[1];
+  var target = targetLoc;
 
   var newBullet = new Bullet(this.loc, 2);
   newBullet.draw('bullet');
-  newBullet.targetLoc = targetLoc;
+  newBullet.targetLoc = target;
   bulletObjs.push(newBullet);
-  if (newBullet.inBounds) {
-    newBullet.fire(targetLoc);
-  }
 }
 
 //bullet constructor
@@ -214,10 +212,6 @@ crosshairs.draw('crosshairs');
 //mouse movement controls crosshairs
 board.on('mousemove', function () {
   var loc = d3.mouse(this);
-  // mouse = {
-  //   x: loc[0],
-  //   y: loc[1]
-  // };
   crosshairs.loc[0] = loc[0];
   crosshairs.loc[1] = loc[1];
   d3.select('.crosshairs')
@@ -227,7 +221,8 @@ board.on('mousemove', function () {
 
 //click fires
 board.on('click', function () {
-  playerObj.shoot(crosshairs.loc);
+  var loc = crosshairs.loc.slice();
+  playerObj.shoot(loc);
 });
 
 
@@ -326,7 +321,6 @@ $(function () {
 
   var moveBullets = function () {
     _.each(bulletObjs, function (bulletObj) {
-      // console.log(bulletObj)
       bulletObj.fire(bulletObj.targetLoc);
     });
   };
