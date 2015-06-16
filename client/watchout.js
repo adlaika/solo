@@ -9,10 +9,16 @@ var gameOptions = {
 
 var gameStats = {
   score: 0,
-  bestScore: 0
+  highScore: 0,
+  kills: 0,
+  health: 100
 };
 
-
+var updateScore = function () {
+  d3.select('.scoreboard .current span').text(gameStats.score);
+  d3.select('.scoreboard .highscore span').text(gameStats.highScore);
+  d3.select('.scoreboard .kills span').text(gameStats.kills);
+};
 
 
 
@@ -201,6 +207,7 @@ Enemy.prototype.die = function () {
         })
         .remove();
       enemyObjs.splice(j, 1);
+      gameStats.kills++;
       return;
     }
   }
@@ -409,6 +416,12 @@ $(function () {
     if (collision) {
       score = 0;
       board.style('background-color', 'red');
+      gameStats.health--;
+      d3.select('.scoreboard .health span').text(gameStats.health);
+      if (gameStats.health <= 0) {
+        paused = true;
+        alert('You lose!');
+      }
     } else {
       board.style('background-color', 'white');
     }
@@ -451,4 +464,14 @@ $(function () {
       spawnEnemies();
     }
   });
+
+  //---SCORE TIMER---
+  var scoreTicker = function () {
+    if (!paused) {
+      gameStats.score = gameStats.score + 1;
+      gameStats.highScore = Math.max(gameStats.score, gameStats.highScore);
+      updateScore();
+    }
+  };
+  setInterval(scoreTicker, 100);
 });
