@@ -119,26 +119,13 @@ Bullet.prototype = Object.create(GameElement.prototype);
 Bullet.prototype.constructor = Bullet;
 
 Bullet.prototype.fire = function () {
-  var xDiff = this.loc[0] - this.targetLoc[0];
-  var yDiff = this.loc[1] - this.targetLoc[1];
-  console.log('thisloc: ', this.loc);
-  console.log('tarloc: ', this.targetLoc);
-  var x, y;
+  var run = this.targetLoc[0] - this.loc[0];
+  var rise = this.targetLoc[1] - this.loc[1];
+  var length = Math.sqrt((rise * rise) + (run * run));
+  var unitX = run / length;
+  var unitY = rise / length;
 
-  if (xDiff > 0) {
-    x = 1;
-  } else {
-    x = -1;
-  }
-
-  if (yDiff > 0) {
-    y = 1;
-  } else {
-    y = -1;
-  }
-
-  this.move(x, y);
-  // console.log(this.loc)
+  this.move(unitX, unitY);
 }
 
 //player constructor
@@ -164,25 +151,14 @@ Enemy.prototype = Object.create(GameElement.prototype);
 Enemy.prototype.constructor = Enemy;
 
 Enemy.prototype.chase = function (target) {
-  var speed = this.speed;
-  var x = this.loc[0];
-  var y = this.loc[1];
-  var targetX = target.loc[0];
-  var targetY = target.loc[1];
-  if (x > targetX) {
-    this.move(-speed, 0);
-  }
-  if (x < targetX) {
-    this.move(speed, 0);
-  }
-  if (y < targetY) {
-    this.move(0, speed);
-  }
-  if (y > targetY) {
-    this.move(0, -speed);
-  }
-};
+  var run = target.loc[0] - this.loc[0];
+  var rise = target.loc[1] - this.loc[1];
+  var length = Math.sqrt((rise * rise) + (run * run));
+  var unitX = run / length;
+  var unitY = rise / length;
 
+  this.move(unitX, unitY);
+};
 
 
 
@@ -251,7 +227,7 @@ board.on('click', function () {
 
 
 //---RUN ONCE GAME IS LOADED---
-$(document).ready(function () {
+$(function () {
 
   //WASD controls
   var keyPushStates = {};
@@ -350,6 +326,7 @@ $(document).ready(function () {
 
   var updateBulletLoc = function () {
     d3.selectAll('.bullet').each(function (_, i) {
+      if (!inBounds(bulletObjs[i].loc[0], bulletObjs[i].loc[1])) {}
       updateLoc(d3.select(this), bulletObjs[i].loc);
     });
   };
