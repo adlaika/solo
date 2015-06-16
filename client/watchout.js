@@ -107,6 +107,7 @@ GameElement.prototype.shoot = function (targetLoc) {
   var run = targetLoc[0] - newBullet.loc[0];
   var rise = targetLoc[1] - newBullet.loc[1];
   var length = Math.sqrt((rise * rise) + (run * run));
+
   newBullet.unitX = run / length;
   newBullet.unitY = rise / length;
   bulletObjs.push(newBullet);
@@ -220,8 +221,15 @@ board.on('mousemove', function () {
 
 //click fires
 board.on('click', function () {
-  var loc = crosshairs.loc.slice();
-  playerObj.shoot(loc);
+  //only allow shoot if crosshair not inside player
+  var dx = crosshairs.loc[0] - playerObj.loc[0];
+  var dy = crosshairs.loc[1] - playerObj.loc[1];
+  var distance = Math.sqrt(dx * dx + dy * dy);
+  if (distance > crosshairs.size + playerObj.size) {
+    var targetLoc = crosshairs.loc.slice();
+    playerObj.shoot(targetLoc);
+  }
+
 });
 
 
