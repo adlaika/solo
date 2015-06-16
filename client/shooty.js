@@ -1,7 +1,7 @@
 //---SETTINGS---
 var gameOptions = {
-  width: window.innerWidth / 2,
-  height: window.innerHeight - 100,
+  width: 650,
+  height: 600,
   friction: 0.9
 };
 
@@ -298,7 +298,16 @@ $(function () {
   };
 
   d3.select('body').on('keydown', function () {
+    //spacebar, for pausing
     if (d3.event.keyCode === 32) {
+      if (paused) {
+        console.log('unpausing...');
+        board.style('background-color', 'white');
+      } else {
+        console.log('pausing...');
+        d3.select('.svg-canvas')
+        board.style('background-color', 'lightgray');
+      }
       paused = !paused;
     }
     logKey(d3.event);

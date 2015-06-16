@@ -14,6 +14,10 @@ body {
   margin-left: auto;
 }
 
+.paused {
+  background: pink;
+}
+
 .crosshairs {
   fill: blue;
 }
