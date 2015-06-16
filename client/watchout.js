@@ -72,10 +72,15 @@ GameElement.prototype.move = function (x, y) {
   this.loc[1] += y * this.speed;
 };
 
-GameElement.prototype.shoot = function (targetX, targetY) {
+//for player shots, call with 'player.shoot(crosshairs.loc);'
+var bulletObjs = [];
+GameElement.prototype.shoot = function (targetLoc) {
   var x = this.loc[0];
   var y = this.loc[1];
-  // new Bullet (crosshairs)
+  var newBullet = new Bullet(this.loc, 2);
+  bulletObjs.push(newBullet);
+  console.log(bulletObjs)
+  newBullet.fire(targetLoc);
 }
 
 //bullet constructor
@@ -86,6 +91,11 @@ var Bullet = function () {
 Bullet.prototype = Object.create(GameElement.prototype);
 Bullet.prototype.constructor = Bullet;
 
+Bullet.prototype.fire = function (targetLoc) {
+  var xDiff = this.loc[0] - targetLoc[0];
+  var yDiff = this.loc[1] - targetLoc[1];
+  this.move(xDiff, yDiff);
+}
 
 //player constructor
 var Player = function () {
@@ -136,6 +146,23 @@ var board = d3.select('.board')
   .attr('width', gameOptions.width)
   .attr('height', gameOptions.height);
 
+
+//instantiate player and append to board, save as selection
+var newPlayer = new Player([toPixelAxes.x(50), toPixelAxes.y(50)], 10);
+newPlayer.draw('player');
+var player = d3.select('.player');
+
+//instantiate and append some enemies
+var newEnemies = [];
+for (var i = 0; i < gameOptions.nEnemies; i++) {
+  var x = randX();
+  var y = randY();
+  var newEnemy = new Enemy([x, y], 20);
+  newEnemies.push(newEnemy);
+  newEnemy.draw('enemy');
+}
+var enemies = d3.selectAll('.enemy');
+
 //instantiate crosshairs and append to board
 var crosshairs = new Crosshairs([toPixelAxes.x(50), toPixelAxes.y(50)], 2);
 var mouse = {
@@ -158,21 +185,10 @@ board.on('mousemove', function () {
     .attr('cy', pixelize(crosshairs.loc[1]))
 });
 
-//instantiate player and append to board, save as selection
-var newPlayer = new Player([toPixelAxes.x(50), toPixelAxes.y(50)], 10);
-newPlayer.draw('player');
-var player = d3.select('.player');
-
-//instantiate and append some enemies
-var newEnemies = [];
-for (var i = 0; i < gameOptions.nEnemies; i++) {
-  var x = randX();
-  var y = randY();
-  var newEnemy = new Enemy([x, y], 20);
-  newEnemies.push(newEnemy);
-  newEnemy.draw('enemy');
-}
-var enemies = d3.selectAll('.enemy');
+//click fires
+board.on('click', function () {
+  newPlayer.shoot(crosshairs.loc);
+})
 
 //---RUN ONCE GAME IS LOADED---
 $(document).ready(function () {
@@ -259,11 +275,18 @@ $(document).ready(function () {
     })
   }
 
+  var updateMultiLoc = function (selection, objs) {
+    selection.each(function (_, i) {
+      updateLoc(d3.select(this), objs[i].loc);
+    })
+  }
+
   //---GAME TIMER---
   d3.timer(function () {
     keysHandler();
     updateLoc(player, newPlayer.loc);
     moveEnemies();
     updateEnemyLoc();
+    updateMultiLoc(d3.selectAll('.bullets'), bulletObjs);
   });
 });
