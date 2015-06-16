@@ -99,11 +99,16 @@ var bulletObjs = [];
 GameElement.prototype.shoot = function (targetLoc) {
   var x = this.loc[0];
   var y = this.loc[1];
-  var target = targetLoc;
 
   var newBullet = new Bullet(this.loc, 2);
   newBullet.draw('bullet');
-  newBullet.targetLoc = target;
+  newBullet.targetLoc = targetLoc;
+
+  var run = targetLoc[0] - newBullet.loc[0];
+  var rise = targetLoc[1] - newBullet.loc[1];
+  var length = Math.sqrt((rise * rise) + (run * run));
+  newBullet.unitX = run / length;
+  newBullet.unitY = rise / length;
   bulletObjs.push(newBullet);
 }
 
@@ -116,13 +121,7 @@ Bullet.prototype = Object.create(GameElement.prototype);
 Bullet.prototype.constructor = Bullet;
 
 Bullet.prototype.fire = function () {
-  var run = this.targetLoc[0] - this.loc[0];
-  var rise = this.targetLoc[1] - this.loc[1];
-  var length = Math.sqrt((rise * rise) + (run * run));
-  var unitX = run / length;
-  var unitY = rise / length;
-
-  this.move(unitX, unitY);
+  this.move(this.unitX, this.unitY);
 }
 
 //player constructor
