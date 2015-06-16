@@ -3,8 +3,7 @@ var gameOptions = {
   width: window.innerWidth - 100,
   height: window.innerHeight - 100,
   padding: 40,
-  nEnemies: 30,
-  interval: 2000,
+  nEnemies: 15,
   friction: 0.9
 };
 
@@ -78,8 +77,10 @@ GameElement.prototype.shoot = function (targetLoc) {
   var x = this.loc[0];
   var y = this.loc[1];
   var newBullet = new Bullet(this.loc, 2);
+  // console.log(bulletObjs)
+  this.draw('bullet');
+  newBullet.targetLoc = targetLoc;
   bulletObjs.push(newBullet);
-  console.log(bulletObjs)
   newBullet.fire(targetLoc);
 }
 
@@ -94,7 +95,7 @@ Bullet.prototype.constructor = Bullet;
 Bullet.prototype.fire = function (targetLoc) {
   var xDiff = this.loc[0] - targetLoc[0];
   var yDiff = this.loc[1] - targetLoc[1];
-  this.move(xDiff, yDiff);
+  this.move(xDiff / this.speed, yDiff / this.speed);
 }
 
 //player constructor
@@ -160,7 +161,7 @@ for (var i = 0; i < gameOptions.nEnemies; i++) {
   var newEnemy = new Enemy([x, y], 20);
   newEnemies.push(newEnemy);
   newEnemy.draw('enemy');
-}
+};
 var enemies = d3.selectAll('.enemy');
 
 //instantiate crosshairs and append to board
@@ -188,7 +189,7 @@ board.on('mousemove', function () {
 //click fires
 board.on('click', function () {
   newPlayer.shoot(crosshairs.loc);
-})
+});
 
 //---RUN ONCE GAME IS LOADED---
 $(document).ready(function () {
@@ -204,7 +205,7 @@ $(document).ready(function () {
     } else if (event.type === 'keyup') {
       keyPushStates[keyCode] = false;
     }
-  }
+  };
 
   d3.select('body').on('keydown', function () {
     logKey(d3.event);
@@ -249,7 +250,7 @@ $(document).ready(function () {
     } else if (keyPushStates[83]) {
       newPlayer.move(0, 2);
     }
-  }
+  };
 
   var updateLoc = function (targetSelection, loc) {
     targetSelection.datum(loc)
@@ -267,19 +268,25 @@ $(document).ready(function () {
     enemies.each(function (_, i) {
       updateLoc(d3.select(this), newEnemies[i].loc);
     });
-  }
+  };
 
   var moveEnemies = function () {
     _.each(newEnemies, function (enemy) {
       enemy.chase(newPlayer);
-    })
-  }
+    });
+  };
+
+  var moveBullets = function () {
+    _.each(bulletObjs, function (bulletObj) {
+      bulletObj.fire(bulletObj.targetLoc);
+    });
+  };
 
   var updateMultiLoc = function (selection, objs) {
     selection.each(function (_, i) {
       updateLoc(d3.select(this), objs[i].loc);
-    })
-  }
+    });
+  };
 
   //---GAME TIMER---
   d3.timer(function () {
@@ -287,6 +294,7 @@ $(document).ready(function () {
     updateLoc(player, newPlayer.loc);
     moveEnemies();
     updateEnemyLoc();
+    moveBullets();
     updateMultiLoc(d3.selectAll('.bullets'), bulletObjs);
   });
 });
