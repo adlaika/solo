@@ -263,6 +263,7 @@ board.on('mousemove', function () {
 
 //click fires
 board.on('click', function () {
+  if (paused) return;
   //only allow shoot if crosshair not inside player
   var dx = crosshairs.loc[0] - playerObj.loc[0];
   var dy = crosshairs.loc[1] - playerObj.loc[1];
@@ -272,7 +273,21 @@ board.on('click', function () {
     playerObj.shoot(targetLoc);
   }
 });
-
+var shoot = false;
+var targetLoc;
+var drag = d3.behavior.drag()
+  .on('drag', function () {
+    if (paused) return;
+    //only allow shoot if crosshair not inside player
+    var dx = crosshairs.loc[0] - playerObj.loc[0];
+    var dy = crosshairs.loc[1] - playerObj.loc[1];
+    var distance = Math.sqrt(dx * dx + dy * dy);
+    if (distance > crosshairs.size + playerObj.size) {
+      targetLoc = crosshairs.loc.slice();
+      shoot = true;
+    }
+  });
+d3.select('.svg-canvas').call(drag);
 
 
 
@@ -458,6 +473,10 @@ $(function () {
   //---GAME TIMER---
   d3.timer(function () {
     if (!paused) {
+      if (shoot) {
+        playerObj.shoot(targetLoc);
+        shoot = false;
+      }
       keysHandler();
       updateLoc(player, playerObj.loc);
       moveEnemies();
