@@ -1,8 +1,7 @@
 //---SETTINGS---
 var gameOptions = {
-  width: window.innerWidth,
+  width: window.innerWidth / 2,
   height: window.innerHeight - 100,
-  nEnemies: 30,
   friction: 0.9
 };
 
@@ -217,7 +216,8 @@ var paused = true;
 var board = d3.select('.board')
   .append('svg:svg')
   .attr('width', gameOptions.width)
-  .attr('height', gameOptions.height);
+  .attr('height', gameOptions.height)
+  .attr('class', 'svg-canvas')
 
 
 //instantiate player and append to board, save as selection
@@ -228,12 +228,13 @@ var player = d3.select('.player');
 //instantiate and append some enemies
 var enemyObjs = [];
 var spawnEnemies = function () {
-  gameOptions.nEnemies = Math.floor(gameStats.timeLived / 10);
-  if (enemyObjs.length < gameOptions.nEnemies) {
-    for (var i = 0; i < gameOptions.nEnemies; i++) {
+  var nEnemies = Math.floor(gameStats.timeLived / 10);
+  var enemySize = Math.max(5, (gameStats.timeLived / 10));
+  if (enemyObjs.length < nEnemies) {
+    for (var i = 0; i < nEnemies; i++) {
       var x = randX();
       var y = randY();
-      var newEnemy = new Enemy([x, y], 20);
+      var newEnemy = new Enemy([x, y], enemySize);
       enemyObjs.push(newEnemy);
       newEnemy.draw('enemy');
     };
@@ -359,7 +360,9 @@ $(function () {
   var updateEnemyLoc = function () {
     enemies = d3.selectAll('.enemy');
     enemies.each(function (_, i) {
-      updateLoc(d3.select(this), enemyObjs[i].loc);
+      if (enemyObjs[i]) {
+        updateLoc(d3.select(this), enemyObjs[i].loc);
+      }
     });
   };
 

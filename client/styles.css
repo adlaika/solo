@@ -4,12 +4,18 @@ body {
 }
 
 .board {
-  background-color: white;
+  background-color: lightgray;
   cursor: none;
 }
 
+.svg-canvas {
+  border: 1px solid black;
+  margin-right: auto;
+  margin-left: auto;
+}
+
 .crosshairs {
-  fill: red;
+  fill: blue;
 }
 
 .player {
