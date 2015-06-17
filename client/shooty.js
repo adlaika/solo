@@ -51,7 +51,7 @@ var inBounds = function (x, y) {
 }
 
 var isMaxedOut = function (loc) {
-  if (loc[0] > gameOptions.width || loc[0] < 0 || loc[1] > gameOptions.height || loc[1] < 0) {
+  if ((loc[0] > gameOptions.width) || (loc[0] < 0) || (loc[1] > gameOptions.height) || (loc[1] < 0)) {
     return true;
   }
   return false;
@@ -138,7 +138,7 @@ Bullet.prototype.fire = function () {
 Bullet.prototype.die = function () {
   for (var j = 0; j < bulletObjs.length; j++) {
     if (this === bulletObjs[j]) {
-      d3.selectAll('')
+      d3.selectAll('.bullet')
         .filter(function (d, i) {
           return i === j;
         })
@@ -228,9 +228,9 @@ var player = d3.select('.player');
 //instantiate and append some enemies
 var enemyObjs = [];
 var spawnEnemies = function () {
-  var nEnemies = Math.floor(gameStats.timeLived / 10);
-  var enemySize = Math.max(5, (gameStats.timeLived / 10));
-  if (enemyObjs.length < nEnemies) {
+  var nEnemies = Math.floor(gameStats.timeLived / 20);
+  var enemySize = Math.max(5, (gameStats.timeLived / 30));
+  if (gameStats.timeLived % 5 === 0 && enemyObjs.length < nEnemies) {
     for (var i = 0; i < nEnemies; i++) {
       var x = randX();
       var y = randY();
@@ -240,7 +240,6 @@ var spawnEnemies = function () {
     };
   }
 }
-spawnEnemies();
 var enemies = d3.selectAll('.enemy');
 
 //instantiate crosshairs and append to board
@@ -410,7 +409,12 @@ $(function () {
 
   var updateBulletLoc = function () {
     d3.selectAll('.bullet').each(function (_, i) {
-      updateLoc(d3.select(this), bulletObjs[i].loc);
+      if (bulletObjs[i]) {
+        updateLoc(d3.select(this), bulletObjs[i].loc);
+        if (isMaxedOut(bulletObjs[i].loc)) {
+          bulletObjs[i].die();
+        }
+      }
     });
   };
 
