@@ -3,11 +3,21 @@ body {
   background-color: lightgray;
 }
 
+.top-container {
+  width: 650px;
+}
+
 .scoreboard {
+  float: left;
   background-color: lightgray;
 }
 
+.instructions {
+  float: right;
+}
+
 .board {
+  width: 650px;
   background-color: lightgray;
   cursor: none;
 }
@@ -27,7 +37,7 @@ body {
 }
 
 .enemy {
-  fill: purple;
+  fill: green;
 }
 
 .bullet {

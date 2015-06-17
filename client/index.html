@@ -4,12 +4,19 @@
     <link rel='stylesheet' type='css' href='styles.css'>
   </head>
   <body>
-    <div class="scoreboard">
-      <!-- Modify the scoreboard when important events occur in your game! -->
-      <div class="high">High score: <span id="high">0</span></div>
-      <div class="current">Time Alive: <span id="current">0</span></div>
-      <div class="kills">Kills: <span id ="kills">0</span></div>
-       <div class="health">Health: <span id ="health">100</span></div>
+    <div class="top-container">
+      <div class="scoreboard">
+        <!-- Modify the scoreboard when important events occur in your game! -->
+        <div class="high">High score: <span id="high">0</span></div>
+        <div class="current">Time Alive: <span id="current">0</span></div>
+        <div class="kills">Kills: <span id ="kills">0</span></div>
+         <div class="health">Health: <span id ="health">100</span></div>
+      </div>
+      <div class="instructions">
+          <div>WASD controls movement!</div>
+          <div>Mouse controls aim!</div>
+          <div>Don't touch the green guys!</div>
+      </div>
     </div>
     <div class="board"></div>
     <script src="d3.js" charset="utf-8"></script>

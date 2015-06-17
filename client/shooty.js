@@ -87,12 +87,13 @@ var GameElement = function (loc, size) {
 
 //all game elements have a function that creates them on board
 GameElement.prototype.draw = function (htmlClass) {
-  board.append('svg:circle')
+  board
+    .append('svg:circle')
     .attr('class', htmlClass)
     .attr('cx', pixelize(this.loc[0]))
     .attr('cy', pixelize(this.loc[1]))
-    .attr('r', this.size)
     .attr('stroke', 'black')
+    .attr('r', this.size)
 };
 
 GameElement.prototype.move = function (x, y) {
