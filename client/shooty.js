@@ -92,6 +92,7 @@ GameElement.prototype.draw = function (htmlClass) {
     .attr('cx', pixelize(this.loc[0]))
     .attr('cy', pixelize(this.loc[1]))
     .attr('r', this.size)
+    .attr('stroke', 'black')
 };
 
 GameElement.prototype.move = function (x, y) {
@@ -229,7 +230,7 @@ var player = d3.select('.player');
 var enemyObjs = [];
 var spawnEnemies = function () {
   var nEnemies = Math.floor(gameStats.timeLived / 20);
-  var enemySize = Math.max(5, (gameStats.timeLived / 30));
+  var enemySize = Math.max(5, (gameStats.timeLived / 10));
   if (gameStats.timeLived % 5 === 0 && enemyObjs.length < nEnemies) {
     for (var i = 0; i < nEnemies; i++) {
       var x = randX();
@@ -316,11 +317,11 @@ $(function () {
     if (d3.event.keyCode === 32) {
       if (paused) {
         console.log('unpausing...');
-        board.style('background-color', 'white');
+        board.style('background-color', 'black');
       } else {
         console.log('pausing...');
         d3.select('.svg-canvas')
-        board.style('background-color', 'lightgray');
+        board.style('background-color', 'gray');
       }
       paused = !paused;
     }
@@ -448,7 +449,7 @@ $(function () {
         alert('You lose!');
       }
     } else {
-      board.style('background-color', 'white');
+      board.style('background-color', 'black');
     }
     prevCollision = collision;
   };
