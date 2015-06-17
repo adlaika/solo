@@ -317,7 +317,7 @@ $(function () {
     if (d3.event.keyCode === 32) {
       if (paused) {
         console.log('unpausing...');
-        board.style('background-color', 'black');
+        board.style('background-color', '#242424');
       } else {
         console.log('pausing...');
         d3.select('.svg-canvas')
@@ -449,7 +449,7 @@ $(function () {
         alert('You lose!');
       }
     } else {
-      board.style('background-color', 'black');
+      board.style('background-color', '#242424');
     }
     prevCollision = collision;
   };
